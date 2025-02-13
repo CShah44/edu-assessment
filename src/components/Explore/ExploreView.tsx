@@ -15,6 +15,7 @@ import { GPTService } from "../../services/gptService";
 import { MarkdownComponentProps, Question, Topic } from "../../types";
 import { LoadingAnimation } from "../shared/LoadingAnimation";
 import { UserContext } from "../../types";
+import { chatHistoryService } from "../../services/firebaseConfig";
 
 interface Message {
   type: "user" | "ai";
@@ -223,13 +224,16 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
           window.navigator.vibrate(50);
         }
 
-        // Scroll before starting the search
         scrollToTop();
-
         setIsLoading(true);
-        setMessages([
-          { type: "user", content: query },
-          { type: "ai", content: "" },
+
+        // Preserve existing messages and add new ones
+        const newUserMessage: Message = { type: "user", content: query };
+        const newAIMessage: Message = { type: "ai", content: "" };
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          newUserMessage,
+          newAIMessage,
         ]);
 
         setShowInitialSearch(false);
@@ -237,16 +241,24 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
         await gptService.streamExploreContent(
           query,
           userContext,
-          (content: StreamChunk) => {
-            setMessages([
-              { type: "user", content: query },
-              {
+          (chunk: StreamChunk) => {
+            setMessages((prevMessages) => {
+              // Update only the last AI message while preserving history
+              const messagesWithoutLast = prevMessages.slice(0, -1);
+              const updatedAIMessage: Message = {
                 type: "ai",
-                content: content.text,
-              },
-            ]);
+                content: chunk.text,
+              };
+              return [...messagesWithoutLast, updatedAIMessage];
+            });
           }
         );
+
+        // Save the complete message to Firebase after streaming is done
+        await chatHistoryService.saveMessage(userContext.userId, {
+          type: "user",
+          content: query,
+        });
       } catch (error) {
         console.error("Search error:", error);
         onError(
@@ -258,6 +270,7 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
     },
     [gptService, onError, userContext, scrollToTop]
   );
+
   useEffect(() => {
     if (initialQuery) {
       handleSearch(initialQuery);

@@ -11,6 +11,8 @@ import {
   writeBatch,
   serverTimestamp,
 } from "firebase/firestore";
+import { Topic } from "../../src/types";
+import { Question } from "../types";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -23,6 +25,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+interface Message {
+  type: "user" | "ai";
+  content?: string;
+  topics?: Topic[];
+  questions?: Question[];
+}
 
 export const chatHistoryService = {
   async saveMessage(userId: string, message: Message) {

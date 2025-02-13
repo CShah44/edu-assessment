@@ -39,6 +39,5 @@ export const useApi = () => {
     isLoading,
     explore,
     getQuestion,
-    generateTest,
   };
 };

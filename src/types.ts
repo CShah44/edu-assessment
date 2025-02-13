@@ -1,5 +1,6 @@
 export interface UserContext {
   age: number;
+  userId: string;
 }
 
 export interface MarkdownComponentProps {
