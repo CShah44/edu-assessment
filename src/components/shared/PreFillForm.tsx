@@ -1,30 +1,31 @@
-import React, { useState } from 'react';
-import { UserContext } from '../../types';
+import React, { useState } from "react";
+import { UserContext } from "../../types";
 
 interface PreFillFormProps {
   onSubmit: (context: UserContext) => void;
 }
 
 export const PreFillForm: React.FC<PreFillFormProps> = ({ onSubmit }) => {
-  const [age, setAge] = useState<string>('');
-  
+  const [age, setAge] = useState<string>("");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const ageNumber = parseInt(age);
     if (isNaN(ageNumber) || ageNumber < 1 || ageNumber > 100) {
       return;
     }
 
     onSubmit({
-      age: ageNumber
+      age: ageNumber,
+      userId: crypto.randomUUID(),
     });
   };
 
   const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Allow empty string or valid numbers
-    if (value === '' || /^\d{1,3}$/.test(value)) {
+    if (value === "" || /^\d{1,3}$/.test(value)) {
       setAge(value);
     }
   };
@@ -34,12 +35,14 @@ export const PreFillForm: React.FC<PreFillFormProps> = ({ onSubmit }) => {
       <div className="max-w-md w-full space-y-8 bg-gray-800/50 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-gray-700/50">
         {/* Logo and Title */}
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 mb-4 flex items-center justify-center 
-            bg-primary rounded-xl text-white text-2xl font-bold">
+          <div
+            className="mx-auto h-16 w-16 mb-4 flex items-center justify-center 
+            bg-primary rounded-xl text-white text-2xl font-bold"
+          >
             {/* Stacked layers logo */}
-            <svg 
-              className="w-10 h-10" 
-              viewBox="0 0 24 24" 
+            <svg
+              className="w-10 h-10"
+              viewBox="0 0 24 24"
               fill="currentColor"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -59,7 +62,10 @@ export const PreFillForm: React.FC<PreFillFormProps> = ({ onSubmit }) => {
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="age" className="block text-sm font-medium text-gray-300 mb-2">
+              <label
+                htmlFor="age"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
                 Your Age
               </label>
               <div className="relative">
@@ -100,4 +106,4 @@ export const PreFillForm: React.FC<PreFillFormProps> = ({ onSubmit }) => {
       </div>
     </div>
   );
-}; 
+};
