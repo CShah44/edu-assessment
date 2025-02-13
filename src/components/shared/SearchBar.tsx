@@ -66,19 +66,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     setShowSuggestions(false);
   };
 
-  // Add keyboard shortcut (Cmd/Ctrl + K)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        document.querySelector<HTMLInputElement>('input[type="text"]')?.focus();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown as any);
-    return () => window.removeEventListener("keydown", handleKeyDown as any);
-  }, []);
-
   return (
     <div
       className={`w-full max-w-3xl ${centered ? "mx-auto text-center" : ""}`}
@@ -221,9 +208,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           transition={{ delay: 0.3 }}
           className="mt-6 space-y-2"
         >
-         <p className="text-gray-400 text-sm"></p>
+          <p className="text-gray-400 text-sm"></p>
           <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-           <span></span>  
+            <span></span>
             {suggestions.map(({ text, icon }, idx) => (
               <motion.button
                 key={idx}

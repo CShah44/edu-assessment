@@ -4,7 +4,6 @@ export interface UserContext {
 
 export interface MarkdownComponentProps {
   children: React.ReactNode;
-  [key: string]: any;
 }
 
 export interface Question {
@@ -41,7 +40,15 @@ export interface PreFillFormProps {
 
 declare global {
   interface Window {
-    dataLayer: any[];
+    gtag: (
+      command: string,
+      action: string,
+      options: {
+        event_category: string;
+        event_label: string;
+        value: number;
+      }
+    ) => void;
   }
 }
 

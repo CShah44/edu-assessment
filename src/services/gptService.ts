@@ -119,6 +119,7 @@ export class GPTService {
     }) => void
   ): Promise<void> {
     try {
+      console.log(userContext.age);
       const stream = await this.model.generateContentStream({
         contents: [
           {
@@ -246,8 +247,24 @@ export class GPTService {
     // Parse the JSON
     const parsedContent = JSON.parse(jsonString);
 
+    interface QuestionSchema {
+      text: string;
+      options: {
+        A: string;
+        B: string;
+        C: string;
+        D: string;
+      };
+      correctAnswer: "A" | "B" | "C" | "D";
+      explanation: {
+        correct: string;
+        key_point: string;
+      };
+      subtopic: string;
+    }
+
     // Transform each question in the array
-    const questions = parsedContent.questions.map((q) => {
+    const questions = parsedContent.questions.map((q: QuestionSchema) => {
       const question: Question = {
         text: q.text,
         options: Object.values(q.options),

@@ -12,39 +12,19 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { SearchBar } from "../shared/SearchBar";
 import { GPTService } from "../../services/gptService";
-import { MarkdownComponentProps } from "../../types";
-import { RelatedTopics } from "./RelatedTopics";
-import { RelatedQuestions } from "./RelatedQuestions";
+import { MarkdownComponentProps, Question, Topic } from "../../types";
 import { LoadingAnimation } from "../shared/LoadingAnimation";
 import { UserContext } from "../../types";
 
 interface Message {
   type: "user" | "ai";
   content?: string;
-  topics?: Array<{
-    topic: string;
-    type: string;
-    reason: string;
-  }>;
-  questions?: Array<{
-    question: string;
-    type: string;
-    context: string;
-  }>;
+  topics?: Topic[];
+  questions?: Question[];
 }
 
 interface StreamChunk {
   text?: string;
-  topics?: Array<{
-    topic: string;
-    type: string;
-    reason: string;
-  }>;
-  questions?: Array<{
-    question: string;
-    type: string;
-    context: string;
-  }>;
 }
 
 interface ExploreViewProps {
@@ -103,19 +83,6 @@ const MarkdownComponents: Record<string, React.FC<MarkdownComponentProps>> = {
       {children}
     </li>
   ),
-  code: ({ children, inline, ...props }) =>
-    inline ? (
-      <code className="bg-gray-700 px-1 rounded text-xs sm:text-sm" {...props}>
-        {children}
-      </code>
-    ) : (
-      <code
-        className="block bg-gray-700 p-2 rounded my-2 text-xs sm:text-sm overflow-x-auto"
-        {...props}
-      >
-        {children}
-      </code>
-    ),
   blockquote: ({ children, ...props }) => (
     <blockquote
       className="border-l-4 border-gray-500 pl-4 my-2 text-gray-400 italic"
@@ -203,7 +170,6 @@ export const RelatedQueries: React.FC<{
 export const ExploreView: React.FC<ExploreViewProps> = ({
   initialQuery,
   onError,
-  onRelatedQueryClick,
   userContext,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -271,14 +237,12 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
         await gptService.streamExploreContent(
           query,
           userContext,
-          (chunk: StreamChunk) => {
+          (content: StreamChunk) => {
             setMessages([
               { type: "user", content: query },
               {
                 type: "ai",
-                content: chunk.text,
-                topics: chunk.topics,
-                questions: chunk.questions,
+                content: content.text,
               },
             ]);
           }
@@ -294,20 +258,6 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
     },
     [gptService, onError, userContext, scrollToTop]
   );
-
-  const handleRelatedQueryClick = useCallback(
-    (query: string) => {
-      // Scroll before handling the click
-      scrollToTop();
-
-      if (onRelatedQueryClick) {
-        onRelatedQueryClick(query);
-      }
-      handleSearch(query);
-    },
-    [handleSearch, onRelatedQueryClick, scrollToTop]
-  );
-
   useEffect(() => {
     if (initialQuery) {
       handleSearch(initialQuery);
@@ -407,24 +357,6 @@ export const ExploreView: React.FC<ExploreViewProps> = ({
                           >
                             {message.content || ""}
                           </ReactMarkdown>
-                        )}
-
-                        {message.topics && message.topics.length > 0 && (
-                          <div className="mt-3">
-                            <RelatedTopics
-                              topics={message.topics}
-                              onTopicClick={handleRelatedQueryClick}
-                            />
-                          </div>
-                        )}
-
-                        {message.questions && message.questions.length > 0 && (
-                          <div className="mt-3">
-                            <RelatedQuestions
-                              questions={message.questions}
-                              onQuestionClick={handleRelatedQueryClick}
-                            />
-                          </div>
                         )}
                       </div>
                     </div>
