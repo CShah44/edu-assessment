@@ -43,4 +43,22 @@ declare global {
   interface Window {
     dataLayer: any[];
   }
-} 
+}
+
+export interface Topic {
+  name: string;
+  type: "prerequisite" | "extension" | "application" | "parallel" | "deeper";
+  reason: string;
+}
+
+export interface StreamQuestion {
+  text: string;
+  type: "curiosity" | "mechanism" | "causality" | "innovation" | "insight";
+  context: string;
+}
+
+export interface StreamContent {
+  text?: string;
+  topics?: Topic[];
+  questions?: StreamQuestion[];
+}
